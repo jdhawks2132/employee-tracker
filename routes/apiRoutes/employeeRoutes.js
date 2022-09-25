@@ -146,4 +146,47 @@ router.delete('/employee/:id', (req, res) => {
 	});
 });
 
+// View employee by manager
+router.get('/employees/manager/:id', (req, res) => {
+  const sql = `SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
+  FROM employees
+  LEFT JOIN roles ON employees.role_id = roles.id
+  LEFT JOIN departments ON roles.department_id = departments.id
+  LEFT JOIN employees manager ON manager.id = employees.manager_id
+  WHERE employees.manager_id = ?`;
+  const params = [req.params.id];
+  db.query(sql, params, (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: 'success',
+      data: rows,
+    });
+  });
+});
+
+// View employees by department
+router.get('/employees/department/:id', (req, res) => {
+  const sql = `SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
+  FROM employees
+  LEFT JOIN roles ON employees.role_id = roles.id
+  LEFT JOIN departments ON roles.department_id = departments.id
+  LEFT JOIN employees manager ON manager.id = employees.manager_id
+  WHERE departments.id = ?`;
+  const params = [req.params.id];
+  db.query(sql, params, (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: 'success',
+      data: rows,
+    });
+  });
+});
+
+
 module.exports = router;

@@ -102,4 +102,25 @@ router.delete('/department/:id', (req, res) => {
   });
 });
 
+//View department budget based on combined salaries of all employees in that department
+router.get('/department/budget/:id', (req, res) => {
+  const sql = `SELECT departments.name AS department, SUM(roles.salary) AS utilized_budget
+  FROM employees
+  LEFT JOIN roles ON employees.role_id = roles.id
+  LEFT JOIN departments ON roles.department_id = departments.id
+  WHERE departments.id = ?
+  GROUP BY departments.name`;
+  const params = [req.params.id];
+  db.query(sql, params, (err, row) => {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: 'success',
+      data: row,
+    });
+  });
+});
+
 module.exports = router;
